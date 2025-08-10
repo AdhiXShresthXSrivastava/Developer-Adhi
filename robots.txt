@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://adhixshresthxsrivastava.github.io/Developer-Adhi/sitemap.xml
