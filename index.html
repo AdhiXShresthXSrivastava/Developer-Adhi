@@ -1,236 +1,411 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Developer-Adhi</title>
-<meta name="description" content="Hello, I'm Adhi Shresth Srivastava — a passionate developer crafting elegant web apps, blending coding, math, and gaming into modern digital experiences.">
-<meta name="keywords" content="Adhi Shresth Srivastava, Developer-Adhi, portfolio, coding, web apps, math, gaming">
-<meta name="author" content="Adhi Shresth Srivastava">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Developer Adhi</title>
+    <meta name="description" content="Official portfolio of Adhi Shresth, a Class 9 developer specializing in JavaScript, Three.js, and IoT Automation.">
+    <meta name="keywords" content="Adhi Shresth, Student Developer, Javascript, Three.js, Programming, Class 9, IoT Automation">
+    <meta name="author" content="Adhi Shresth">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
 
-<script src="https://cdn.tailwindcss.com"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-<script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;900&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #00f2ff;
+            --accent-glow: rgba(0, 242, 255, 0.2);
+            --bg-dark: #020617;
+        }
 
-<style>
-:root{--accent:#fff;--bg:#000;--nav-text:#fff}
-body.light-mode{--accent:#000;--bg:#fff;--nav-text:#000}
-body{
-font-family:Inter,sans-serif;
-background:var(--bg);
-color:var(--accent);
-margin:0;
-overflow-x:hidden;
-transition:.6s
-}
-canvas{position:fixed;inset:0;z-index:-1;pointer-events:none}
+        * { cursor: none !important; font-family: 'Space Grotesk', sans-serif; box-sizing: border-box; }
+        .mono { font-family: 'Fira Code', monospace; }
 
-/* PAGE */
-.page{
-display:none;
-opacity:0;
-transform:translateY(20px);
-min-height:100vh;
-padding:22vh 6% 18vh;
-transition:.6s cubic-bezier(.23,1,.32,1)
-}
-.page.active{display:block;opacity:1;transform:translateY(0)}
-@media(min-width:768px){
-body{overflow:hidden}
-.page{position:absolute;inset:0;height:100vh;overflow-y:auto}
-}
+        body { 
+            background-color: var(--bg-dark); 
+            color: #f8fafc; 
+            margin: 0; 
+            overflow-x: hidden; 
+            transition: background 0.8s ease;
+        }
+        ::-webkit-scrollbar { display: none; }
 
-/* TYPE */
-.typewriter::after{content:'|';animation:blink 1s infinite}
-@keyframes blink{50%{opacity:0}}
+        .glass {
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 20px;
+        }
 
-/* PROJECT */
-.project-row{border-bottom:1px solid var(--accent);transition:.4s}
-.project-row:hover{padding-left:2rem;background:rgba(128,128,128,.08)}
+        #bg-canvas { position: fixed; top: 0; left: 0; z-index: -1; opacity: 0.6; }
 
-/* MOBILE MENU */
-#mobileMenu{transform:translateY(-100%);transition:.4s}
-#mobileMenu.open{transform:translateY(0)}
+        .neon-text { text-shadow: 0 0 15px var(--primary); transition: 0.3s; }
+        .neon-border { border: 1px solid var(--primary); box-shadow: 0 0 20px var(--accent-glow); transition: 0.3s; }
 
-/* SCROLLBAR */
-::-webkit-scrollbar{width:4px}
-::-webkit-scrollbar-thumb{background:var(--accent)}
-</style>
+        /* Navigation */
+        .nav-link { font-size: 14px; font-weight: 600; letter-spacing: 0.1em; transition: 0.3s; position: relative; }
+        .nav-link::after { content: ''; position: absolute; bottom: -5px; left: 0; width: 0; height: 2px; background: var(--primary); transition: 0.3s; }
+        .nav-link:hover::after { width: 100%; }
+        .nav-link:hover { color: var(--primary); }
+
+        /* Custom Cursor */
+        #cursor-dot { width: 6px; height: 6px; background: var(--primary); position: fixed; border-radius: 50%; pointer-events: none; z-index: 10000; top: 0; left: 0; }
+        #cursor-outline { 
+            width: 30px; height: 30px; border: 1px solid var(--primary); 
+            position: fixed; border-radius: 50%; pointer-events: none; z-index: 9999; 
+            transition: transform 0.1s ease-out; top: 0; left: 0;
+        }
+
+        section { display: none; min-height: 100vh; padding: 120px 20px 60px; }
+        section.active { display: flex; flex-direction: column; animation: fadeIn 0.6s ease-out; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+
+        .progress-fill { height: 100%; background: var(--primary); width: 0%; transition: width 1.5s ease-in-out; box-shadow: 0 0 10px var(--primary); }
+
+        .theme-dot { transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .theme-dot:hover { transform: scale(1.3); border-color: white; }
+
+        /* MOBILE MENU ANIMATIONS */
+        #mobile-nav {
+            display: none;
+            position: fixed;
+            top: 0; right: 0; bottom: 0; left: 0;
+            background: var(--bg-dark);
+            z-index: 100;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1.5rem;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        #mobile-nav.open { display: flex; opacity: 1; }
+
+        #mobile-nav button {
+            transform: translateY(20px);
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #mobile-nav.open button {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        /* Staggered Delay for Menu Items */
+        #mobile-nav button:nth-child(2) { transition-delay: 0.1s; }
+        #mobile-nav button:nth-child(3) { transition-delay: 0.2s; }
+        #mobile-nav button:nth-child(4) { transition-delay: 0.3s; }
+        #mobile-nav button:nth-child(5) { transition-delay: 0.4s; }
+        #mobile-nav button:nth-child(6) { transition-delay: 0.5s; }
+        
+        @media (max-width: 768px) {
+            #cursor-dot, #cursor-outline { display: none; }
+            * { cursor: auto !important; }
+            header { padding: 0 10px; }
+        }
+    </style>
 </head>
-
 <body>
 
-<div id="canvas-container"></div>
+    <div id="cursor-dot"></div>
+    <div id="cursor-outline"></div>
+    <canvas id="bg-canvas"></canvas>
 
-<!-- HEADER -->
-<header class="fixed top-0 w-full z-[100] px-6 py-5 md:px-12 md:py-8 flex items-center text-[14px] md:text-[12px] font-bold uppercase tracking-[0.25em]">
+    <div id="mobile-nav">
+        <button onclick="toggleMenu()" class="absolute top-8 right-8 text-white"><i data-lucide="x" class="w-8 h-8"></i></button>
+        <button onclick="showPage('home'); toggleMenu()" class="text-3xl font-bold uppercase tracking-tighter">Home</button>
+        <button onclick="showPage('skills'); toggleMenu()" class="text-3xl font-bold uppercase tracking-tighter">Skills</button>
+        <button onclick="showPage('projects'); toggleMenu()" class="text-3xl font-bold uppercase tracking-tighter">Lab</button>
+        <button onclick="showPage('contact'); toggleMenu()" class="text-3xl font-bold uppercase tracking-tighter">Contact</button>
+        <div class="mt-8 opacity-40 text-[10px] mono tracking-[0.3em]">SELECT ENVIRONMENT:</div>
+        <div class="flex gap-4">
+             <button onclick="updateTheme('#00f2ff', '#020617')" class="w-8 h-8 rounded-full bg-cyan-400 border border-white/20"></button>
+             <button onclick="updateTheme('#ff0033', '#080101')" class="w-8 h-8 rounded-full bg-red-600 border border-white/20"></button>
+             <button onclick="updateTheme('#39ff14', '#020a02')" class="w-8 h-8 rounded-full bg-green-500 border border-white/20"></button>
+        </div>
+    </div>
 
-  <div class="flex-1">
-    <div class="text-2xl md:text-xl font-black tracking-tighter cursor-pointer inline-block"
-      onclick="app.switchPage('home')">Developer-Adhi</div>
-  </div>
+    <header class="fixed top-6 left-1/2 -translate-x-1/2 z-50 w-[95%] max-w-6xl">
+        <nav class="glass px-6 py-4 flex justify-between items-center shadow-2xl">
+            <div class="text-2xl font-bold neon-text tracking-tighter cursor-pointer" onclick="showPage('home')">ADHI.S</div>
+            
+            <div class="flex items-center gap-2 bg-black/40 px-3 py-2 rounded-full border border-white/5">
+                <button onclick="updateTheme('#00f2ff', '#020617')" class="theme-dot w-3 h-3 rounded-full bg-cyan-400" title="Cyan"></button>
+                <button onclick="updateTheme('#ff007b', '#0a0105')" class="theme-dot w-3 h-3 rounded-full bg-pink-500" title="Rose"></button>
+                <button onclick="updateTheme('#39ff14', '#020a02')" class="theme-dot w-3 h-3 rounded-full bg-green-500" title="Matrix"></button>
+                <button onclick="updateTheme('#ff0033', '#080101')" class="theme-dot w-3 h-3 rounded-full bg-red-600" title="Crimson"></button>
+                <button onclick="updateTheme('#bd93f9', '#08020a')" class="theme-dot w-3 h-3 rounded-full bg-purple-500" title="Amethyst"></button>
+                <button onclick="updateTheme('#ffb86c', '#0a0602')" class="theme-dot w-3 h-3 rounded-full bg-orange-400" title="Amber"></button>
+                <button onclick="updateTheme('#ffffff', '#000000')" class="theme-dot w-3 h-3 rounded-full bg-white" title="Mono"></button>
+                <button onclick="randomTheme()" class="text-white/40 hover:text-[var(--primary)] transition ml-1"><i data-lucide="shuffle" class="w-3 h-3"></i></button>
+            </div>
 
-  <nav class="hidden md:flex absolute left-1/2 -translate-x-1/2 space-x-12">
-    <span onclick="app.switchPage('home')" class="cursor-pointer hover:opacity-50">Home</span>
-    <span onclick="app.switchPage('about')" class="cursor-pointer hover:opacity-50">About</span>
-    <span onclick="app.switchPage('projects')" class="cursor-pointer hover:opacity-50">Projects</span>
-    <span onclick="app.switchPage('blog')" class="cursor-pointer hover:opacity-50">Blog</span>
-  </nav>
+            <div class="hidden md:flex items-center gap-8">
+                <button onclick="showPage('home')" class="nav-link uppercase">Home</button>
+                <button onclick="showPage('skills')" class="nav-link uppercase">Skills</button>
+                <button onclick="showPage('projects')" class="nav-link uppercase">Lab</button>
+                <button onclick="showPage('contact')" class="nav-link uppercase">Contact</button>
+            </div>
 
-  <div class="flex-1 flex justify-end items-center gap-4">
-    <button id="theme-toggle" class="w-10 h-10 border border-current rounded-full flex items-center justify-center hover:scale-110">
-      <div class="w-2 h-2 bg-current rounded-full"></div>
-    </button>
-    <button class="md:hidden text-2xl" onclick="toggleMenu()">☰</button>
-  </div>
-</header>
+            <button onclick="toggleMenu()" class="md:hidden text-white"><i data-lucide="menu"></i></button>
+        </nav>
+    </header>
 
-<!-- MOBILE MENU -->
-<div id="mobileMenu"
-class="fixed inset-0 bg-[var(--bg)] z-[99] flex flex-col items-center justify-center text-3xl font-black uppercase gap-10">
-<span onclick="navTo('home')">Home</span>
-<span onclick="navTo('about')">About</span>
-<span onclick="navTo('projects')">Projects</span>
-<span onclick="navTo('blog')">Blog</span>
-</div>
+    <section id="home" class="active items-center justify-center">
+        <div class="max-w-6xl w-full grid lg:grid-cols-2 gap-12 items-center">
+            <div class="text-center lg:text-left">
+                <span class="text-[var(--primary)] mono text-sm tracking-widest block mb-4 uppercase animate-pulse">Initializing Session...</span>
+                <h1 class="text-5xl md:text-8xl font-bold mb-6 leading-tight">Code meets<br><span class="neon-text italic text-[var(--primary)]">Creativity.</span></h1>
+                <p class="text-slate-400 text-lg md:text-xl max-w-xl mb-10 mx-auto lg:mx-0">Class 9th Developer focused on building open-source logic, 3D web interfaces, and smart automation.</p>
+                <div class="flex flex-wrap gap-4 justify-center lg:justify-start">
+                    <button onclick="showPage('projects')" class="neon-border bg-white text-black px-10 py-4 rounded-xl font-bold hover:bg-transparent hover:text-white transition-all">View Lab</button>
+                    <button onclick="initTerminal()" class="glass px-10 py-4 rounded-xl font-bold border-white/10 flex items-center gap-2 hover:bg-white/5 transition">
+                        <i data-lucide="command" class="w-4 h-4"></i> Boot System
+                    </button>
+                </div>
+            </div>
 
-<main>
+            <div class="glass overflow-hidden shadow-2xl border-white/10">
+                <div class="bg-white/5 px-5 py-3 flex justify-between border-b border-white/10">
+                    <div class="flex gap-2"><div class="w-3 h-3 rounded-full bg-red-500/50"></div><div class="w-3 h-3 rounded-full bg-yellow-500/50"></div><div class="w-3 h-3 rounded-full bg-green-500/50"></div></div>
+                    <span class="text-[10px] mono opacity-40">main.sh</span>
+                </div>
+                <div id="terminal-body" class="p-6 h-72 overflow-y-auto mono text-sm text-[var(--primary)] leading-relaxed">
+                    <div id="terminal-output"></div>
+                    <p id="cursor-line" class="inline-block w-2 h-4 bg-[var(--primary)] ml-1 animate-pulse"></p>
+                </div>
+            </div>
+        </div>
 
-<section id="home" class="page active">
-<h1 class="font-black leading-[0.85] uppercase tracking-tighter text-[clamp(3.5rem,15vw,13rem)]">
-The<br>Portfolio
-</h1>
+        <div class="max-w-6xl w-full mt-16 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="glass p-6 text-center border-white/5">
+                <div class="text-3xl font-bold neon-text mb-1 tracking-tighter">20+</div>
+                <div class="text-[10px] text-white/40 uppercase tracking-widest">Repositories</div>
+            </div>
+            <div class="glass p-6 text-center border-white/5">
+                <div class="text-3xl font-bold neon-text mb-1 tracking-tighter">5k+</div>
+                <div class="text-[10px] text-white/40 uppercase tracking-widest">Lines of Code</div>
+            </div>
+            <div class="glass p-6 text-center border-white/5">
+                <div class="text-3xl font-bold neon-text mb-1 tracking-tighter">9th</div>
+                <div class="text-[10px] text-white/40 uppercase tracking-widest">Grade</div>
+            </div>
+            <div class="glass p-6 text-center border-white/5">
+                <div class="text-3xl font-bold neon-text mb-1 tracking-tighter">∞</div>
+                <div class="text-[10px] text-white/40 uppercase tracking-widest">Logic</div>
+            </div>
+        </div>
+    </section>
 
-<div class="mt-12 flex flex-col md:flex-row justify-between gap-10">
-<p id="hero-text" class="max-w-sm text-lg opacity-60 italic min-h-[3em]"></p>
-<button onclick="app.switchPage('projects')" class="border-b border-current pb-2 text-sm uppercase tracking-[0.25em]">
-Explore Works
-</button>
-</div>
-</section>
+    <section id="skills" class="items-center">
+        <div class="max-w-4xl w-full">
+            <h2 class="text-5xl font-bold mb-16 text-center">Skill <span class="text-[var(--primary)]">Matrix</span></h2>
+            <div class="grid md:grid-cols-2 gap-12">
+                <div class="space-y-8">
+                    <div>
+                        <div class="flex justify-between mb-2 text-xs font-bold uppercase tracking-widest"><span>Javascript / ES6</span><span>85%</span></div>
+                        <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden"><div class="progress-fill" data-percent="85%"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-2 text-xs font-bold uppercase tracking-widest"><span>Three.js / 3D</span><span>70%</span></div>
+                        <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden"><div class="progress-fill" data-percent="70%"></div></div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between mb-2 text-xs font-bold uppercase tracking-widest"><span>Tailwind CSS</span><span>95%</span></div>
+                        <div class="h-1.5 w-full bg-white/5 rounded-full overflow-hidden"><div class="progress-fill" data-percent="95%"></div></div>
+                    </div>
+                </div>
+                <div class="glass p-8 mono text-xs leading-loose border-white/10">
+                    <p><span class="text-[var(--primary)]">01</span> class <span class="text-white">Developer</span> {</p>
+                    <p><span class="text-[var(--primary)]">02</span> &nbsp;&nbsp; name = <span class="text-[var(--primary)]">"Adhi Shresth"</span>;</p>
+                    <p><span class="text-[var(--primary)]">03</span> &nbsp;&nbsp; focus = [<span class="text-[var(--primary)]">"Logic"</span>, <span class="text-[var(--primary)]">"Design"</span>];</p>
+                    <p><span class="text-[var(--primary)]">04</span> &nbsp;&nbsp; status = <span class="text-[var(--primary)]">"Constantly Learning"</span>;</p>
+                    <p><span class="text-[var(--primary)]">05</span> }</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<section id="projects" class="page">
-<h2 class="text-sm uppercase tracking-[0.5em] opacity-40 mb-12">/ Selected Works</h2>
+    <section id="projects" class="items-center">
+        <div class="max-w-6xl w-full">
+            <h2 class="text-5xl font-bold mb-16 text-center">Laboratory <span class="text-[var(--primary)]">Builds</span></h2>
+            <div class="grid md:grid-cols-3 gap-8">
+                <div class="glass p-8 group hover:border-[var(--primary)] transition-all">
+                    <i data-lucide="music" class="w-10 h-10 text-[var(--primary)] mb-6"></i>
+                    <h3 class="text-xl font-bold mb-2">Shotify</h3>
+                    <p class="text-slate-400 text-sm">Visual music engine using WebAudio API.</p>
+                </div>
+                <div class="glass p-8 group hover:border-[var(--primary)] transition-all">
+                    <i data-lucide="zap" class="w-10 h-10 text-[var(--primary)] mb-6"></i>
+                    <h3 class="text-xl font-bold mb-2">ClapSync</h3>
+                    <p class="text-slate-400 text-sm">IoT logic for sound-controlled environments.</p>
+                </div>
+                <div class="glass p-8 group hover:border-[var(--primary)] transition-all">
+                    <i data-lucide="binary" class="w-10 h-10 text-[var(--primary)] mb-6"></i>
+                    <h3 class="text-xl font-bold mb-2">Binary Tool</h3>
+                    <p class="text-slate-400 text-sm">Interactive algorithm visualization.</p>
+                </div>
+            </div>
+        </div>
+    </section>
 
-<div class="project-row py-14 flex justify-between items-center">
-<h3 class="font-black uppercase text-[clamp(2.5rem,9vw,6.5rem)]"><a href="https://github.com/AdhiXShresthXSrivastava/BIANRY-CONVERTER" target="_blank">BINARY-CONVERTER</a></h3>
-<span class="text-lg opacity-40">2024</span>
-</div>
+    <section id="contact" class="items-center justify-center">
+        <div class="max-w-4xl w-full text-center">
+            <h2 class="text-5xl font-bold mb-6 tracking-tight">Establish <span class="text-[var(--primary)]">Signal</span></h2>
+            <p class="text-slate-400 mb-12 max-w-lg mx-auto">Open for collaborations on interesting open-source experiments and 3D web projects.</p>
+            
+            <div class="grid md:grid-cols-2 gap-8 text-left">
+                <div class="glass p-8 space-y-6">
+                    <div class="flex items-center gap-4">
+                        <div class="bg-[var(--primary)]/10 p-3 rounded-lg text-[var(--primary)]"><i data-lucide="mail"></i></div>
+                        <div><p class="text-[10px] text-white/40 uppercase mono">Email</p><p class="font-bold">adhi123shresth@gmail.com</p></div>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="bg-[var(--primary)]/10 p-3 rounded-lg text-[var(--primary)]"><i data-lucide="github"></i></div>
+                        <div><p class="text-[10px] text-white/40 uppercase mono">Github</p><p class="font-bold">@AdhiXShresthXSrivastava</p></div>
+                    </div>
+                </div>
 
-<div class="project-row py-14 flex justify-between items-center">
-<h3 class="font-black uppercase text-[clamp(2.5rem,9vw,6.5rem)]"><a href="https://github.com/AdhiXShresthXSrivastava/Clap-System" target="_blank">CLAP-AUTOMATION-SYSTEM</a></h3>
-<span class="text-lg opacity-40">2025</span>
-</div>
-</section>
+                <form class="space-y-4" onsubmit="event.preventDefault(); alert('Transmission Sent!');">
+                    <input type="text" placeholder="Name" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl outline-none focus:border-[var(--primary)]">
+                    <input type="email" placeholder="Email" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl outline-none focus:border-[var(--primary)]">
+                    <textarea placeholder="Message" rows="4" class="w-full bg-white/5 border border-white/10 p-4 rounded-xl outline-none focus:border-[var(--primary)]"></textarea>
+                    <button class="w-full neon-border py-4 rounded-xl font-bold hover:bg-[var(--primary)] hover:text-black transition">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
 
-<section id="about" class="page">
-<h2 class="text-sm uppercase tracking-[0.5em] opacity-40 mb-12">/ Identity</h2>
-<p class="font-light leading-tight text-[clamp(2.2rem,6vw,5.5rem)]">
-I am <span class="font-black">Adhi Shresth Srivastava</span>, a Class 8 student at <span class="font-black">Red Rose Senior Secondary School, Rajajipuram Lucknow</span>, passionate about coding and designing digital experiences in monochrome themes. and I specialize in crafting immersive web applications that blend aesthetics with functionality. and i am also a tech enthusiast who loves exploring the latest trends in web development and design.
-</p>
-</section>
+    <footer class="py-12 border-t border-white/5 text-center text-[10px] mono tracking-[0.4em] opacity-30">
+        ADHI SHRESTH SRIVASTAVA &bull; 2026
+    </footer>
 
-<section id="blog" class="page">
-<h2 class="text-sm uppercase tracking-[0.5em] opacity-40 mb-12">/ Journal</h2>
-<h3 class="text-4xl font-black uppercase italic mb-4">Designing for the Altas AI (Comming Soon)</h3>
-<p class="opacity-60 text-lg max-w-3xl">
-Exploring how monochromatic constraints lead to more impactful user experiences.
-</p>
-<br>
-<h3 class="text-4xl font-black uppercase italic mb-4">Designing E-Commerce Website For Tution</h3>
-<p class="opacity-60 text-lg max-w-3xl">
-Exploring more frameworks and learn more for impactful user experiences.
-</p>
-</section>
+    <script>
+        lucide.createIcons();
 
-</main>
+        // CURSOR
+        const dot = document.getElementById('cursor-dot');
+        const outline = document.getElementById('cursor-outline');
+        window.addEventListener('mousemove', (e) => {
+            dot.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+            outline.animate({ transform: `translate(${e.clientX - 15}px, ${e.clientY - 15}px)` }, { duration: 400, fill: "forwards" });
+        });
 
-<!-- ✅ FIXED FOOTER -->
-<footer class="fixed bottom-0 w-full z-[100] px-6 py-5 md:px-12
-grid grid-cols-1 md:grid-cols-3 items-center
-text-sm md:text-xs uppercase tracking-[0.25em] font-bold">
+        // ROUTING
+        function showPage(id) {
+            document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            window.scrollTo(0,0);
+            if(id === 'skills') {
+                setTimeout(() => {
+                    document.querySelectorAll('.progress-fill').forEach(bar => {
+                        bar.style.width = bar.getAttribute('data-percent');
+                    });
+                }, 100);
+            }
+        }
 
-<!-- LEFT -->
-<p class="text-center md:text-left">
-Adhi Shresth Srivastava
-</p>
+        // MOBILE MENU TOGGLE
+        function toggleMenu() {
+            const menu = document.getElementById('mobile-nav');
+            const isOpen = menu.classList.contains('open');
+            
+            if (!isOpen) {
+                menu.style.display = 'flex';
+                setTimeout(() => menu.classList.add('open'), 10);
+            } else {
+                menu.classList.remove('open');
+                setTimeout(() => menu.style.display = 'none', 500);
+            }
+        }
 
-<!-- CENTER (PERFECTLY CENTERED) -->
-<div class="flex justify-center gap-10 my-3 md:my-0">
-<a href="https://github.com/AdhiXShresthXSrivastava" target="_blank" class="hover:line-through">GitHub</a>
-<a href="https://www.youtube.com/@Developer-Adhi" target="_blank" class="hover:line-through">Youtube</a>
-<a href="https://codepen.io/Adhi-Shresth-Srivastava" target="_blank" class="hover:line-through">Codepen</a>
-</div>
+        // THEMES
+        const themes = [
+            { primary: '#00f2ff', bg: '#020617' },
+            { primary: '#ff007b', bg: '#0a0105' },
+            { primary: '#39ff14', bg: '#020a02' },
+            { primary: '#ff0033', bg: '#080101' },
+            { primary: '#bd93f9', bg: '#08020a' },
+            { primary: '#ffb86c', bg: '#0a0602' },
+            { primary: '#ffffff', bg: '#000000' }
+        ];
 
-<!-- RIGHT -->
-<p class="text-center md:text-right opacity-40 italic">
-© 2025
-</p>
+        function updateTheme(color, bg) {
+            document.documentElement.style.setProperty('--primary', color);
+            document.documentElement.style.setProperty('--accent-glow', color + '33');
+            document.body.style.backgroundColor = bg;
+            if(stars) stars.material.color.set(new THREE.Color(color));
+        }
 
-</footer>
+        function randomTheme() {
+            const pick = themes[Math.floor(Math.random() * themes.length)];
+            updateTheme(pick.primary, pick.bg);
+        }
 
-<script>
-class PortfolioApp{
-constructor(){
-this.pages=document.querySelectorAll('.page');
-this.hero=document.getElementById('hero-text');
-this.type("Architecting digital dimensions in monochrome.");
-}
-switchPage(id){
-this.pages.forEach(p=>p.classList.remove('active'));
-setTimeout(()=>document.getElementById(id).classList.add('active'),60);
-if(id==='home'){this.hero.innerHTML='';this.type("Architecting digital dimensions in monochrome.");}
-}
-type(text){
-let i=0;
-this.hero.classList.add('typewriter');
-const t=setInterval(()=>{
-if(i<text.length)this.hero.innerHTML+=text[i++];
-else{clearInterval(t);setTimeout(()=>this.hero.classList.remove('typewriter'),1500)}
-},40);
-}
-}
-const app=new PortfolioApp();
+        // TERMINAL
+        let isTyping = false;
+        function initTerminal() {
+            if (isTyping) return;
+            isTyping = true;
+            const output = document.getElementById('terminal-output');
+            output.innerHTML = '';
+            const lines = [
+                "➜ ~ Requesting system manifest...",
+                "➜ ~ Connection: STABLE",
+                "➜ ~ Developer: Adhi_Shresth",
+                "➜ ~ Status: Lab is online",
+                "➜ ~ System Status: OPTIMAL",
+                "➜ ~ Welcome to the lab."
+            ];
+            let i = 0;
+            function type() {
+                if(i < lines.length) {
+                    const p = document.createElement('p');
+                    p.className = "mb-2";
+                    p.innerHTML = `<span class="opacity-50 mr-2">$</span> ${lines[i]}`;
+                    output.appendChild(p);
+                    i++;
+                    setTimeout(type, 450);
+                } else { isTyping = false; }
+            }
+            type();
+        }
 
-function toggleMenu(){document.getElementById('mobileMenu').classList.toggle('open')}
-function navTo(id){toggleMenu();app.switchPage(id)}
+        // THREE.JS
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
 
-let scene,camera,renderer,points;
-function init3D(){
-scene=new THREE.Scene();
-camera=new THREE.PerspectiveCamera(75,innerWidth/innerHeight,.1,1000);
-camera.position.z=5;
-const geo=new THREE.BufferGeometry(),pos=[];
-for(let i=0;i<9000;i++)pos.push((Math.random()-.5)*30,(Math.random()-.5)*30,(Math.random()-.5)*30);
-geo.setAttribute('position',new THREE.Float32BufferAttribute(pos,3));
-points=new THREE.Points(geo,new THREE.PointsMaterial({size:.03,color:0xffffff,opacity:.6,transparent:true}));
-scene.add(points);
-renderer=new THREE.WebGLRenderer({alpha:true,antialias:true});
-renderer.setSize(innerWidth,innerHeight);
-renderer.setPixelRatio(Math.min(devicePixelRatio,2));
-document.getElementById('canvas-container').appendChild(renderer.domElement);
-animate();
-}
-function animate(){
-points.rotation.y+=.0008;
-points.rotation.x+=.0004;
-renderer.render(scene,camera);
-requestAnimationFrame(animate);
-}
-window.onresize=()=>{
-camera.aspect=innerWidth/innerHeight;
-camera.updateProjectionMatrix();
-renderer.setSize(innerWidth,innerHeight);
-};
-document.getElementById('theme-toggle').onclick=()=>{
-const l=document.body.classList.toggle('light-mode');
-points.material.color.setHex(l?0x000000:0xffffff);
-};
-init3D();
-</script>
+        const geo = new THREE.BufferGeometry();
+        const pos = [];
+        for(let i=0; i<3000; i++) pos.push(THREE.MathUtils.randFloatSpread(120), THREE.MathUtils.randFloatSpread(120), THREE.MathUtils.randFloatSpread(120));
+        geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+        const mat = new THREE.PointsMaterial({ color: 0x00f2ff, size: 0.1 });
+        const stars = new THREE.Points(geo, mat);
+        scene.add(stars);
+        camera.position.z = 50;
 
+        function animate() {
+            requestAnimationFrame(animate);
+            stars.rotation.y += 0.0006;
+            renderer.render(scene, camera);
+        }
+        animate();
+
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        window.onload = initTerminal;
+    </script>
 </body>
 </html>
-
-
